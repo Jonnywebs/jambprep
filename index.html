@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b5cff">
+<meta name="description" content="Free CBT practice with real past questions. Pick a subject, choose how many questions, and get graded instantly.">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>JAMB Access</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:#f4f7fb;color:#132238}
+.app{max-width:480px;margin:auto;min-height:100vh;background:#fff;box-shadow:0 0 30px #00000012;display:flex;flex-direction:column}
+header{background:#0b5cff;color:#fff;padding:24px 20px 22px;border-radius:0 0 24px 24px}
+.brand{font-weight:900;font-size:22px;letter-spacing:.5px}.tag{opacity:.9;margin-top:5px;font-size:13px}
+main{padding:20px;flex:1}.screen{display:none}.screen.active{display:block}
+h1{font-size:25px;margin:4px 0 8px}h2{font-size:18px;margin:18px 0 8px}.muted{color:#65758b;font-size:14px}
+button{font-family:inherit;border:0;border-radius:12px;padding:13px 16px;font-weight:800;cursor:pointer;font-size:14px;touch-action:manipulation}
+button:disabled{opacity:.45;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}
+.card{display:block;width:100%;border:1px solid #e5eaf1;border-radius:16px;padding:16px;background:#fff;text-align:left;cursor:pointer;box-shadow:0 4px 14px #12263a08;color:#132238;font-weight:400}
+.card b{display:block;margin-bottom:4px;font-size:14px;line-height:1.3}.card span{font-size:12px;color:#718096}
+.card .em{font-size:22px;display:block;margin-bottom:6px}
+.primary{background:#0b5cff;color:#fff}.secondary{background:#edf3ff;color:#0b5cff}.ghost{background:#f1f4f8;color:#405268}
+.back{background:none;padding:0;color:#0b5cff;margin-bottom:16px}
+.subject-head{display:flex;justify-content:space-between;align-items:center}
+.timer{font-weight:900;color:#d64545;background:#fff0f0;padding:8px 11px;border-radius:10px;font-variant-numeric:tabular-nums}
+.progress{height:7px;background:#e8edf4;border-radius:9px;margin:18px 0}.bar{height:100%;background:#0b5cff;border-radius:9px;width:0;transition:width .2s}
+.qbox{border:1px solid #e5eaf1;border-radius:18px;padding:18px;margin-top:16px}
+.qnum{font-size:12px;color:#718096;font-weight:800}.question{font-size:17px;font-weight:700;line-height:1.5;margin:10px 0 16px;overflow-wrap:anywhere}
+.passage{background:#f7f9fc;border-left:4px solid #0b5cff;border-radius:8px;padding:12px;margin:12px 0;font-size:14px;line-height:1.55;max-height:220px;overflow:auto}
+.qimg{max-width:100%;height:auto;border-radius:10px;margin:8px 0;display:block}
+.option{display:block;width:100%;text-align:left;background:#f7f9fc;margin:9px 0;border:1px solid #e4e9f0;color:#17263a;font-weight:600;line-height:1.45;overflow-wrap:anywhere}
+.option.selected{background:#e8f0ff;border-color:#0b5cff;color:#0b5cff}
+.nav{display:flex;gap:9px;margin-top:18px}.nav button{flex:1}
+.palette-toggle{width:100%;margin-top:12px}
+.palette{display:none;grid-template-columns:repeat(8,1fr);gap:6px;margin-top:10px}.palette.open{display:grid}
+.pn{padding:9px 0;background:#f1f4f8;color:#405268;border-radius:9px;font-size:12px}
+.pn.done{background:#dff3e8;color:#157347}.pn.cur{outline:2px solid #0b5cff}
+.result{text-align:center;padding:18px 0}.score{font-size:52px;font-weight:900;color:#0b5cff}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:20px 0}.stat{background:#f5f7fa;border-radius:13px;padding:13px;text-align:center}.stat b{display:block;font-size:19px}.stat span{font-size:11px;color:#718096}
+.solution{border:1px solid #e5eaf1;border-radius:15px;padding:15px;margin:12px 0;overflow-wrap:anywhere}.solution.correct{border-left:5px solid #159957}.solution.wrong{border-left:5px solid #d64545}.solution.skipped{border-left:5px solid #d99a1b}
+.small{font-size:13px;line-height:1.55}.pill{display:inline-block;background:#eef4ff;color:#0b5cff;padding:5px 9px;border-radius:99px;font-size:11px;font-weight:800}
+.full{width:100%;margin-top:12px}
+.history-item{padding:14px 4px;border-bottom:1px solid #edf0f4;display:flex;justify-content:space-between;gap:10px;align-items:center}
+.history-item small{display:block;color:#718096;margin-top:3px}
+.empty{padding:30px 10px;text-align:center;color:#718096}
+.search{width:100%;padding:13px 14px;border:1px solid #dfe5ee;border-radius:12px;font-size:15px;font-family:inherit;margin-top:10px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{background:#f1f4f8;color:#405268;padding:10px 15px;border-radius:99px}
+.chip.on{background:#0b5cff;color:#fff}
+.toggle{display:flex;align-items:center;gap:10px;margin:14px 0;font-size:14px;font-weight:600}
+.toggle input{width:20px;height:20px}
+.notice{background:#fff8e6;border:1px solid #f3dfa4;color:#7a5b00;border-radius:12px;padding:10px 12px;font-size:13px;line-height:1.5;margin-top:12px}
+.spinner{width:42px;height:42px;border:5px solid #e3eaf6;border-top-color:#0b5cff;border-radius:50%;margin:30px auto 16px;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.center{text-align:center}
+footer{text-align:center;color:#8a98a9;font-size:11px;padding:20px;line-height:1.6}
+</style>
+</head>
+<body>
+<div class="app">
+<header><div class="brand">JAMB ACCESS</div><div class="tag">Free CBT practice for every student</div></header>
+<main>
+
+<section id="home" class="screen active">
+<h1>Prepare smarter.</h1>
+<p class="muted">Practise with real past questions, get graded instantly, and learn from every answer.</p>
+<div class="grid">
+<button class="card" onclick="showSubjects()"><span class="em">📚</span><b>Practice</b><span>Pick a subject and start</span></button>
+<button class="card" onclick="showHistory()"><span class="em">📊</span><b>My Results</b><span>Your practice history</span></button>
+</div>
+<div class="qbox" style="margin-top:20px"><b>How it works</b><p class="small muted">Choose a subject → choose how many questions → answer → submit → see your score and full solutions. Every test uses fresh random questions.</p></div>
+</section>
+
+<section id="subjects" class="screen">
+<button class="back" onclick="goHome()">← Home</button>
+<h1>Choose a subject</h1>
+<input class="search" id="subjSearch" type="search" placeholder="Search subjects…" oninput="renderSubjects()" autocomplete="off">
+<div class="grid" id="subjGrid"></div>
+</section>
+
+<section id="setup" class="screen">
+<button class="back" onclick="showSubjects()">← Subjects</button>
+<h1 id="setupTitle">Subject</h1>
+<p class="muted">How many questions do you want?</p>
+<div class="chips" id="countChips"></div>
+<label class="toggle"><input type="checkbox" id="timedBox" checked onchange="S.timed=this.checked;renderSetup()"><span id="timedLabel">Timed test</span></label>
+<button class="primary full" id="startBtn" onclick="begin(false)">Start Test</button>
+<button class="ghost full" id="savedBtn" onclick="begin(true)" style="display:none"></button>
+<div class="notice" id="setupNotice" style="display:none"></div>
+</section>
+
+<section id="loading" class="screen center">
+<div class="spinner" id="spin"></div>
+<h2 id="loadTitle">Getting your questions…</h2>
+<p class="muted" id="loadMsg"></p>
+<button class="ghost full" id="loadBtn" onclick="cancelLoad()">Cancel</button>
+</section>
+
+<section id="quiz" class="screen">
+<div class="subject-head"><button class="back" onclick="exitQuiz()">← Exit</button><div class="timer" id="timer">0:00</div></div>
+<div class="progress"><div class="bar" id="bar"></div></div>
+<div class="notice" id="quizNotice" style="display:none"></div>
+<div id="qarea"></div>
+<div class="nav"><button class="ghost" id="prevBtn" onclick="prevQ()">Previous</button><button class="secondary" id="nextBtn" onclick="nextQ()">Next</button></div>
+<button class="ghost palette-toggle" id="palBtn" onclick="togglePalette()">Questions</button>
+<div class="palette" id="palette"></div>
+<button class="primary full" onclick="submitQuiz(false)">Submit Test</button>
+</section>
+
+<section id="results" class="screen">
+<div class="result"><div class="pill" id="resSub">TEST COMPLETE</div><div class="score" id="score">0%</div><p id="resultText" class="muted"></p></div>
+<div class="stats">
+<div class="stat"><b id="correct">0</b><span>Correct</span></div>
+<div class="stat"><b id="wrong">0</b><span>Wrong</span></div>
+<div class="stat"><b id="skipped">0</b><span>Not answered</span></div>
+<div class="stat"><b id="timeUsed">0:00</b><span>Time used</span></div>
+</div>
+<button class="primary full" onclick="showSolutions('all')">View Solutions</button>
+<button class="secondary full" onclick="showSetup(S.subject)">Practice Again (new questions)</button>
+<button class="ghost full" onclick="goHome()">Home</button>
+</section>
+
+<section id="solutions" class="screen">
+<button class="back" onclick="show('results')">← Results</button>
+<h1>Solutions</h1>
+<div class="chips" id="solChips"></div>
+<div id="solutionsArea"></div>
+<button class="primary full" onclick="goHome()">Back to Home</button>
+</section>
+
+<section id="history" class="screen">
+<button class="back" onclick="goHome()">← Home</button><h1>My Results</h1><p class="muted">Saved on this device only.</p>
+<div id="historyArea"></div>
+</section>
+
+</main>
+<footer>JAMB Access • Community education project<br>Not affiliated with or endorsed by JAMB. Past questions are provided via SdashAPI for practice only.</footer>
+</div>
+
+<script>
+/* ============ SETTINGS (edit these) ============ */
+// Paste your SdashAPI AccessToken between the quotes. NOTE: anything in this file is visible
+// to anyone who opens the page source, so only use a token you are happy to expose.
+const API_TOKEN = 'sdash_9f746c9dc97687e6fdf0dd3c21f31af395c1bb87';
+const API_BASE  = 'https://sdashapi.com/api/';
+const EXAM_TYPE = 'utme';          // utme = JAMB questions only
+const SECS_PER_QUESTION = 60;      // timed mode: 1 minute per question
+const COUNTS = [10, 20, 40, 50, 100];
+const POOL_MAX = 200;              // questions saved per subject on the device
+/* ================================================ */
+
+const SUBJECTS=[
+['english','English Language','📖'],['mathematics','Mathematics','🧮'],['physics','Physics','⚛️'],['chemistry','Chemistry','🧪'],
+['biology','Biology','🧬'],['economics','Economics','📈'],['government','Government','🏛️'],['englishlit','Literature in English','📚'],
+['geography','Geography','🌍'],['commerce','Commerce','🛒'],['accounting','Accounting','🧾'],['crk','Christian Religious Knowledge','✝️'],
+['irk','Islamic Religious Knowledge','☪️'],['agriculture','Agriculture','🌾'],['history','History','🏺'],['civiledu','Civic Education','🗳️'],
+['currentaffairs','Current Affairs','📰'],['computer','Computer Studies','💻'],['gscience','General Science','🔬'],['yoruba','Yoruba','🗣️'],
+['igbo','Igbo','🗣️'],['hausa','Hausa','🗣️'],['arabic','Arabic Studies','🕌'],['fineart','Fine Art','🎨'],
+['music','Music','🎵'],['homeeconomics','Home Economics','🏠'],['insurance','Insurance','🛡️']
+];
+
+/* Built-in backup questions (used only if the server is unreachable and nothing is saved) */
+const BACKUP_MATHS=[
+{q:"If 2x + 5 = 17, find x.",o:["4","5","6","7"],a:2,e:"Subtract 5 from both sides: 2x = 12. Divide by 2 to get x = 6."},
+{q:"Simplify: 3² + 4².",o:["7","12","25","49"],a:2,e:"3² = 9 and 4² = 16. Therefore 9 + 16 = 25."},
+{q:"The gradient of the line y = 3x − 4 is",o:["−4","3","4","−3"],a:1,e:"In y = mx + c, m is the gradient. Here m = 3."},
+{q:"Find the mean of 4, 6, 8 and 10.",o:["6","7","8","9"],a:1,e:"Mean = (4 + 6 + 8 + 10) / 4 = 28 / 4 = 7."},
+{q:"If sin θ = 1/2 and θ is acute, θ is",o:["30°","45°","60°","90°"],a:0,e:"For an acute angle, sin 30° = 1/2."},
+{q:"Factorise x² − 9.",o:["(x−3)(x+3)","(x−9)(x+1)","(x−3)²","(x+9)(x−1)"],a:0,e:"This is a difference of two squares: x² − 3² = (x−3)(x+3)."},
+{q:"A bag contains 3 red and 2 blue balls. The probability of picking a blue ball is",o:["1/5","2/5","3/5","1/2"],a:1,e:"There are 2 blue balls out of 5 balls, so P(blue) = 2/5."},
+{q:"Solve 5x = 45.",o:["5","7","8","9"],a:3,e:"Divide both sides by 5: x = 45/5 = 9."},
+{q:"What is the next term in the sequence 2, 5, 8, 11, ...?",o:["12","13","14","15"],a:2,e:"The common difference is 3. Therefore 11 + 3 = 14."},
+{q:"The area of a rectangle of length 8 cm and width 5 cm is",o:["13 cm²","26 cm²","40 cm²","80 cm²"],a:2,e:"Area = length × width = 8 × 5 = 40 cm²."}
+].map((b,i)=>({id:'b'+i,q:b.q,sec:'',opts:b.o.map((t,j)=>({k:'abcd'[j],t})),a:'abcd'[b.a],sol:b.e,img:'',yr:'',ex:''}));
+
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}
+function load(k,d){try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function fmt(s){s=Math.max(0,Math.round(s));const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;return (h?h+':'+String(m).padStart(2,'0'):m)+':'+String(x).padStart(2,'0')}
+function subjName(slug){const s=SUBJECTS.find(x=>x[0]===slug);return s?s[1]:slug}
+function tokenOk(){return typeof API_TOKEN==='string'&&API_TOKEN.trim().length>8&&!/^YOUR_/i.test(API_TOKEN.trim())}
+
+/* Question text comes from a third-party server, so only simple formatting tags are kept. */
+const KEEP=new Set(['SUB','SUP','B','I','U','EM','STRONG','BR','P','SPAN','SMALL','DIV','UL','OL','LI','TABLE','THEAD','TBODY','TR','TD','TH']);
+const DROP=new Set(['SCRIPT','STYLE','IFRAME','OBJECT','EMBED','NOSCRIPT','LINK','META','FORM','INPUT','BUTTON','TEXTAREA','SVG','MATH']);
+function clean(html){
+  if(html==null)return '';
+  const doc=new DOMParser().parseFromString('<body>'+String(html),'text/html');
+  const out=document.createElement('div');
+  (function walk(src,dst){
+    src.childNodes.forEach(n=>{
+      if(n.nodeType===3)dst.appendChild(document.createTextNode(n.nodeValue));
+      else if(n.nodeType===1){
+        const t=n.tagName.toUpperCase();
+        if(DROP.has(t))return;
+        if(KEEP.has(t)){const el=document.createElement(t.toLowerCase());dst.appendChild(el);walk(n,el)}
+        else walk(n,dst);
+      }
+    });
+  })(doc.body,out);
+  return out.innerHTML.trim();
+}
+function safeImg(u){
+  if(!u||typeof u!=='string')return '';
+  u=u.trim();
+  if(u.startsWith('//'))u='https:'+u;
+  else if(u.startsWith('/'))u='https://sdashapi.com'+u;
+  return /^https?:\/\//i.test(u)?u:'';
+}
+function norm(d){
+  if(!d||typeof d!=='object'||!d.question||!d.option||typeof d.option!=='object')return null;
+  const keys=Object.keys(d.option).filter(k=>d.option[k]!=null&&String(d.option[k]).trim()!=='').sort();
+  const ans=String(d.answer==null?'':d.answer).trim().toLowerCase();
+  if(keys.length<2||!keys.includes(ans))return null;
+  return {id:d.id,q:clean(d.question),sec:d.section?clean(d.section):'',
+    opts:keys.map(k=>({k:k.toLowerCase(),t:clean(d.option[k])})),a:ans,
+    sol:d.solution?clean(d.solution):'',img:safeImg(d.image),yr:d.examyear?String(d.examyear):'',ex:d.examtype?String(d.examtype):''};
+}
+
+/* ---------- saved questions on this device (saves data & credits) ---------- */
+function poolGet(slug){return load('jq_pool_'+slug,[])}
+function poolAdd(slug,list){
+  const map=new Map(poolGet(slug).map(q=>[q.id,q]));
+  list.forEach(q=>{if(q.id!=null)map.set(q.id,q)});
+  let arr=Array.from(map.values());
+  if(arr.length>POOL_MAX)arr=shuffle(arr).slice(0,POOL_MAX);
+  if(!store('jq_pool_'+slug,arr)){arr=arr.slice(0,Math.floor(arr.length/2));store('jq_pool_'+slug,arr)}
+}
+
+/* ---------- API ---------- */
+let loadCtl=null,loadTimedOut=false;
+async function api(path,params){
+  const url=new URL(API_BASE+path);
+  Object.entries(params).forEach(([k,v])=>{if(v!=='')url.searchParams.set(k,v)});
+  const t=setTimeout(()=>{loadTimedOut=true;loadCtl&&loadCtl.abort()},25000);
+  try{
+    let res;
+    try{res=await fetch(url,{headers:{AccessToken:API_TOKEN},signal:loadCtl&&loadCtl.signal})}
+    catch(e){
+      if(e&&e.name==='AbortError')throw e;
+      // some browsers/servers block custom headers: retry with the token in the URL
+      url.searchParams.set('token',API_TOKEN);
+      res=await fetch(url,{signal:loadCtl&&loadCtl.signal});
+    }
+    let body=null;try{body=await res.json()}catch(e){}
+    const status=(body&&body.status)||res.status;
+    if(!res.ok||!body||status!==200){const err=new Error((body&&body.message)||('HTTP '+res.status));err.status=status;throw err}
+    return body.data;
+  }finally{clearTimeout(t)}
+}
+function errText(e){
+  if(!e)return 'Something went wrong.';
+  if(e.name==='AbortError')return loadTimedOut?'The server took too long to respond.':'Cancelled.';
+  if(e.status===401)return 'The question service rejected this app’s access key.';
+  if(e.status===429)return 'The question service limit has been reached for now.';
+  if(e.status===403)return 'The question service account is not active.';
+  if(e.status===404)return 'No questions were found for this subject.';
+  if(e instanceof TypeError)return 'Could not reach the server. Check your internet connection.';
+  return 'The question service had a problem ('+(e.message||'unknown')+').';
+}
+async function getQuestions(slug,n){
+  const got=new Map(),all=new Map();let type=EXAM_TYPE,calls=0,empty=0,err=null,otherType=false;
+  while(got.size<n&&calls<10&&empty<3){
+    calls++;
+    const missing=n-got.size;
+    // first request asks for exactly what is needed; top-ups (after duplicates) ask for a few extra,
+    // and the extras are kept on the device for later tests
+    const need=Math.min(50,calls===1?missing:missing*2+3);
+    let data;
+    try{data=await api('v1/q',{subject:slug,type:type,limit:need})}
+    catch(e){
+      if(e.status===404&&type){type='';otherType=true;continue}
+      err=e;break;
+    }
+    const arr=(Array.isArray(data)?data:[data]).map(norm).filter(Boolean);
+    const before=got.size;
+    arr.forEach(q=>{if(q.id==null)return;all.set(q.id,q);if(!got.has(q.id)&&got.size<n)got.set(q.id,q)});
+    empty=got.size===before?empty+1:0;
+    setLoadMsg(got.size+' of '+n+' questions ready…');
+  }
+  return {list:Array.from(got.values()),saved:Array.from(all.values()),err,otherType};
+}
+
+/* ---------- state & navigation ---------- */
+const S={subject:'',count:20,timed:true,qs:[],ans:[],idx:0,total:0,start:0,timerInt:null,active:false,notice:''};
+function show(id){document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));$(id).classList.add('active');scrollTo(0,0)}
+function goHome(){clearInterval(S.timerInt);S.active=false;show('home')}
+function showSubjects(){$('subjSearch').value='';renderSubjects();show('subjects')}
+function renderSubjects(){
+  const q=$('subjSearch').value.trim().toLowerCase();
+  const list=SUBJECTS.filter(s=>!q||s[1].toLowerCase().includes(q));
+  $('subjGrid').innerHTML=list.length?list.map(s=>`<button class="card" onclick="showSetup('${s[0]}')"><span class="em">${s[2]}</span><b>${esc(s[1])}</b></button>`).join(''):'<div class="empty" style="grid-column:1/-1">No subject found.</div>';
+}
+function showSetup(slug){
+  S.subject=slug;
+  if(!COUNTS.includes(S.count))S.count=20;
+  $('timedBox').checked=S.timed;
+  renderSetup();show('setup');
+}
+function renderSetup(){
+  $('setupTitle').textContent=subjName(S.subject);
+  $('countChips').innerHTML=COUNTS.map(c=>`<button class="chip ${c===S.count?'on':''}" onclick="S.count=${c};renderSetup()">${c}</button>`).join('');
+  $('timedLabel').textContent=S.timed?`Timed test (${fmt(S.count*SECS_PER_QUESTION)})`:'Untimed (take your time)';
+  $('startBtn').textContent=`Start ${S.count}-question test`;
+  const saved=poolGet(S.subject).length;
+  const sb=$('savedBtn');
+  if(saved>0){sb.style.display='block';sb.textContent=`Use saved questions (${saved} on this device)`}else sb.style.display='none';
+  const n=$('setupNotice');
+  if(!tokenOk()){n.style.display='block';n.textContent='Setup needed: add your SdashAPI token to the API_TOKEN line in index.html. Until then only saved/backup questions are used.'}
+  else n.style.display='none';
+}
+
+/* ---------- starting a test ---------- */
+function setLoadMsg(t){$('loadMsg').textContent=t}
+function cancelLoad(){if(loadCtl)loadCtl.abort();show('setup');renderSetup()}
+function loadError(msg){
+  $('spin').style.display='none';$('loadTitle').textContent='Could not start the test';
+  setLoadMsg(msg);$('loadBtn').textContent='← Back';$('loadBtn').onclick=()=>{show('setup');renderSetup()};
+}
+async function begin(useSaved){
+  const slug=S.subject,n=S.count;
+  show('loading');
+  $('spin').style.display='block';$('loadTitle').textContent='Getting your questions…';
+  setLoadMsg('');$('loadBtn').textContent='Cancel';$('loadBtn').onclick=cancelLoad;
+  loadCtl=new AbortController();loadTimedOut=false;
+  let list=[],notice='',err=null;
+  if(!useSaved&&tokenOk()){
+    const r=await getQuestions(slug,n);
+    err=r.err;list=r.list;
+    if(r.saved.length)poolAdd(slug,r.saved);
+    if(r.otherType&&list.length)notice='Some questions are from other exam types (WAEC/NECO) because few JAMB ones were found for this subject.';
+  }else if(!useSaved&&!tokenOk()){
+    notice='Questions server not connected yet (owner: add your token). Showing saved or backup questions.';
+  }
+  if(err&&err.name==='AbortError'&&!loadTimedOut)return; // user cancelled
+  if(list.length<n){
+    const have=new Set(list.map(q=>q.id));
+    const extra=shuffle(poolGet(slug).filter(q=>!have.has(q.id))).slice(0,n-list.length);
+    if(extra.length){
+      list=list.concat(extra);
+      if(!notice)notice=useSaved?'Using questions saved on this device.':(err?errText(err)+' Using questions saved on this device.':'')
+    }
+  }
+  if(!list.length&&slug==='mathematics'){
+    list=shuffle(BACKUP_MATHS).slice(0,n);
+    notice='Showing the built-in practice questions because the server could not be reached.';
+  }
+  if(!list.length){loadError(err?errText(err):'No questions are available for this subject right now.');return}
+  if(list.length<n&&!notice)notice=`Only ${list.length} questions were available for this test.`;
+  else if(list.length<n)notice+=` Only ${list.length} questions were available.`;
+  startQuiz(shuffle(list).slice(0,n),notice);
+}
+function startQuiz(qs,notice){
+  S.qs=qs;S.ans=Array(qs.length).fill(null);S.idx=0;S.active=true;S.notice=notice||'';
+  S.total=S.timed?qs.length*SECS_PER_QUESTION:0;S.start=Date.now();
+  const nb=$('quizNotice');nb.style.display=S.notice?'block':'none';nb.textContent=S.notice;
+  $('palette').classList.remove('open');
+  show('quiz');renderQ();updateTimer();
+  clearInterval(S.timerInt);S.timerInt=setInterval(tick,1000);
+}
+
+/* ---------- quiz ---------- */
+function elapsed(){return(Date.now()-S.start)/1000}
+function updateTimer(){$('timer').textContent=S.timed?fmt(S.total-elapsed()):'⏱ '+fmt(elapsed())}
+function tick(){updateTimer();if(S.timed&&elapsed()>=S.total){submitQuiz(true)}}
+function renderQ(){
+  const q=S.qs[S.idx],n=S.qs.length;
+  $('bar').style.width=((S.idx+1)/n*100)+'%';
+  $('qarea').innerHTML=`<div class="qbox"><div class="qnum">QUESTION ${S.idx+1} OF ${n}${q.yr?' • '+esc(q.ex)+' '+esc(q.yr):''}</div>`+
+    (q.sec?`<div class="passage">${q.sec}</div>`:'')+
+    (q.img?`<img class="qimg" src="${esc(q.img)}" alt="Question diagram" loading="lazy" referrerpolicy="no-referrer">`:'')+
+    `<div class="question">${q.q}</div>`+
+    q.opts.map(o=>`<button class="option ${S.ans[S.idx]===o.k?'selected':''}" onclick="choose('${o.k}')"><b>${o.k.toUpperCase()}.</b> ${o.t}</button>`).join('')+`</div>`;
+  $('prevBtn').disabled=S.idx===0;$('nextBtn').disabled=S.idx===n-1;
+  renderPalette();
+}
+function choose(k){S.ans[S.idx]=k;renderQ()}
+function prevQ(){if(S.idx>0){S.idx--;renderQ();scrollTo(0,0)}}
+function nextQ(){if(S.idx<S.qs.length-1){S.idx++;renderQ();scrollTo(0,0)}}
+function go(i){S.idx=i;renderQ();scrollTo(0,0)}
+function renderPalette(){
+  const done=S.ans.filter(x=>x!=null).length;
+  $('palBtn').textContent=`Questions (${done}/${S.qs.length} answered)`;
+  $('palette').innerHTML=S.qs.map((_,i)=>`<button class="pn ${S.ans[i]!=null?'done':''} ${i===S.idx?'cur':''}" onclick="go(${i})">${i+1}</button>`).join('');
+}
+function togglePalette(){$('palette').classList.toggle('open')}
+function exitQuiz(){if(confirm('Exit this test? Your answers will be lost.'))goHome()}
+
+/* ---------- grading ---------- */
+function submitQuiz(auto){
+  if(!S.active)return;
+  if(!auto){
+    const un=S.ans.filter(x=>x==null).length;
+    if(!confirm(un?`You have ${un} unanswered question${un>1?'s':''}. Submit anyway?`:'Submit your test now?'))return;
+  }
+  clearInterval(S.timerInt);S.active=false;
+  const n=S.qs.length;
+  let c=0,sk=0;
+  S.qs.forEach((q,i)=>{if(S.ans[i]==null)sk++;else if(S.ans[i]===q.a)c++});
+  const w=n-c-sk,p=Math.round(c/n*100);
+  const used=S.timed?Math.min(elapsed(),S.total):elapsed();
+  const h=load('jambHistory',[]);
+  h.unshift({d:new Date().toISOString(),s:S.subject,n:n,p:p,c:c});
+  store('jambHistory',h.slice(0,30));
+  $('resSub').textContent=subjName(S.subject).toUpperCase()+' • '+n+' QUESTIONS';
+  $('score').textContent=p+'%';
+  $('correct').textContent=c;$('wrong').textContent=w;$('skipped').textContent=sk;$('timeUsed').textContent=fmt(used);
+  $('resultText').textContent=(auto?'Time is up! ':'')+(p>=70?'Excellent work. Keep practising!':p>=50?'Good attempt. Review the solutions and try again.':'Keep going. Practice is how you improve.');
+  show('results');
+}
+
+/* ---------- solutions & history ---------- */
+function showSolutions(filter){
+  const st=(q,i)=>S.ans[i]==null?'skipped':S.ans[i]===q.a?'correct':'wrong';
+  const counts={all:S.qs.length,wrong:0,skipped:0};
+  S.qs.forEach((q,i)=>{const s=st(q,i);if(s!=='correct')counts[s]++});
+  $('solChips').innerHTML=[['all','All'],['wrong','Wrong'],['skipped','Not answered']].map(([k,l])=>`<button class="chip ${k===filter?'on':''}" onclick="showSolutions('${k}')">${l} (${counts[k]})</button>`).join('');
+  const html=S.qs.map((q,i)=>{
+    const s=st(q,i);if(filter!=='all'&&filter!==s)return '';
+    const mine=S.ans[i]==null?null:q.opts.find(o=>o.k===S.ans[i]);
+    const right=q.opts.find(o=>o.k===q.a);
+    return `<div class="solution ${s}"><div class="small muted">Question ${i+1}${q.yr?' • '+esc(q.ex)+' '+esc(q.yr):''}</div>`+
+      (q.sec?`<div class="passage">${q.sec}</div>`:'')+
+      (q.img?`<img class="qimg" src="${esc(q.img)}" alt="Question diagram" loading="lazy" referrerpolicy="no-referrer">`:'')+
+      `<p style="font-weight:700;line-height:1.5">${q.q}</p>`+
+      `<p class="small">Your answer: ${mine?'<b>'+mine.k.toUpperCase()+'.</b> '+mine.t:'<i>Not answered</i>'}<br>Correct answer: <b>${q.a.toUpperCase()}.</b> ${right?right.t:''}</p>`+
+      `<p class="small"><b>Solution:</b> ${q.sol?q.sol:'<i>No explanation provided for this question.</i>'}</p></div>`;
+  }).join('');
+  $('solutionsArea').innerHTML=html||'<div class="empty">Nothing to show here.</div>';
+  show('solutions');
+}
+function showHistory(){
+  const h=load('jambHistory',[]);
+  $('historyArea').innerHTML=h.length?h.map(x=>{
+    const d=new Date(x.d);
+    return `<div class="history-item"><div><b>${esc(subjName(x.s))}</b><small>${esc(isNaN(d)?'':d.toLocaleString())} • ${esc(x.c)}/${esc(x.n)} correct</small></div><b>${esc(x.p)}%</b></div>`;
+  }).join(''):'<div class="empty">No tests completed yet.</div>';
+  show('history');
+}
+
+renderSubjects();
+if('serviceWorker' in navigator&&location.protocol.startsWith('http')){
+  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+}
+</script>
+</body>
+</html>
